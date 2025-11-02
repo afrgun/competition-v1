@@ -75,6 +75,7 @@ export class AuthRepository {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
         body: JSON.stringify({
           email: credentials.email,
@@ -111,12 +112,13 @@ export class AuthRepository {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
       });
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || "Failed to get user data"
@@ -143,6 +145,7 @@ export class AuthRepository {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
         body: JSON.stringify({
           refresh_token: accessToken, // Use access_token as refresh_token per API spec
@@ -151,7 +154,7 @@ export class AuthRepository {
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(errorData.error?.message || "Logout failed");
       }
