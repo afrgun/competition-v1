@@ -22,7 +22,7 @@ export const CountdownDisplay: React.FC<CountdownDisplayProps> = ({
   }
 
   return (
-    <div className={`flex gap-4 md:gap-8 justify-center items-center ${className}`}>
+    <div className={`flex gap-4 md:gap-8 justify-center items-center ${className}`} suppressHydrationWarning>
       <Timer value={countdown.days} label="Days" />
       <span className="text-3xl md:text-4xl lg:text-5xl text-white font-bold">:</span>
       <Timer value={countdown.hours} label="Hours" />

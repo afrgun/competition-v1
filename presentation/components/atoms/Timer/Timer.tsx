@@ -1,4 +1,3 @@
-'use client'
 import React from "react";
 
 export interface TimerProps {
@@ -13,7 +12,10 @@ export const Timer: React.FC<TimerProps> = ({ value, label, className = "" }) =>
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <div className="text-4xl md:text-5xl lg:text-6xl font-bold font-mono text-white">
+      <div
+        className="text-4xl md:text-5xl lg:text-6xl font-bold font-mono text-white"
+        suppressHydrationWarning
+      >
         {formattedValue}
       </div>
       <div className="text-sm md:text-base text-gray-400 mt-1 uppercase tracking-wide">
