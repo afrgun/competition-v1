@@ -7,21 +7,26 @@ import { storage } from "@/shared/utils";
  * This is the use case / application logic layer
  *
  * Responsibilities:
- * 1. Call AuthRepository to authenticate
- * 2. Save token to storage
- * 3. Return standardized result
+ * 1. Call AuthRepository.login() to get access_token
+ * 2. Call AuthRepository.getUserData() to get user data (id, email)
+ * 3. Save token and user data to storage
+ * 4. Return standardized result
  */
 
 export const loginUserInteractor = async (
   credentials: AuthCredentials
 ): Promise<LoginResult> => {
   try {
-    // Call infrastructure layer to authenticate
-    // NOTE: Change to AuthRepository.login() when backend is ready
-    const user = await AuthRepository.mockLogin(credentials);
+    // Step 1: Call login API to get access token
+    const loginResponse = await AuthRepository.login(credentials);
 
-    // Save token to storage
-    storage.setToken(user.accessToken);
+    // Step 2: Save access token
+    storage.setToken(loginResponse.accessToken);
+
+    // Step 3: Get user data using the access token
+    const user = await AuthRepository.getUserData(loginResponse.accessToken);
+
+    // Step 4: Save user data
     storage.setUserData(user);
 
     return {
@@ -31,7 +36,9 @@ export const loginUserInteractor = async (
   } catch (error) {
     // Handle errors and return user-friendly message
     const message =
-      error instanceof Error ? error.message : "Login failed. Please try again.";
+      error instanceof Error
+        ? error.message
+        : "Login failed. Please try again.";
 
     return {
       success: false,

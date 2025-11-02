@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MainLayout } from "@/presentation/layouts";
-import { Text } from "@/presentation/components/atoms";
+import { Text, Button } from "@/presentation/components/atoms";
 import { storage } from "@/shared/utils";
 import { User } from "@/domain/entities";
+import { logoutUserInteractor } from "@/usecases/auth";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -25,9 +27,17 @@ export default function DashboardPage() {
     setUser(userData);
   }, [router]);
 
-  const handleLogout = () => {
-    storage.clearAll();
-    router.push("/login");
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutUserInteractor();
+      router.push("/login");
+    } catch (error) {
+      // Even if logout fails, redirect to login
+      router.push("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   if (!user) {
@@ -51,10 +61,10 @@ export default function DashboardPage() {
           <div className="space-y-2">
             <div>
               <Text weight="medium" className="inline">
-                Name:{" "}
+                User ID:{" "}
               </Text>
               <Text className="inline" color="secondary">
-                {user.fullName}
+                {user.id}
               </Text>
             </div>
             <div>
@@ -65,23 +75,17 @@ export default function DashboardPage() {
                 {user.email}
               </Text>
             </div>
-            <div>
-              <Text weight="medium" className="inline">
-                User ID:{" "}
-              </Text>
-              <Text className="inline" color="secondary">
-                {user.id}
-              </Text>
-            </div>
           </div>
         </div>
 
-        <button
+        <Button
           onClick={handleLogout}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+          variant="danger"
+          isLoading={isLoggingOut}
+          disabled={isLoggingOut}
         >
           Logout
-        </button>
+        </Button>
       </div>
     </MainLayout>
   );

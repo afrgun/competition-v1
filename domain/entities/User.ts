@@ -1,11 +1,11 @@
 /**
  * User entity - represents authenticated user in the domain
+ * Data from /v1/auth/me endpoint
  */
 export interface User {
   id: string;
-  fullName: string;
   email: string;
-  accessToken: string;
+  accessToken: string; // from login response, not from /me
 }
 
 /**
@@ -17,7 +17,17 @@ export interface AuthCredentials {
 }
 
 /**
- * Login response from use case
+ * Login API response entity
+ * Data from /v1/auth/login endpoint
+ */
+export interface LoginResponse {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+}
+
+/**
+ * Login result from use case
  */
 export interface LoginResult {
   success: boolean;

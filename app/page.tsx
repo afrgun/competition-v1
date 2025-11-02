@@ -1,20 +1,11 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Loader } from "@/presentation/components/atoms";
+import { HeaderNav } from "@/presentation/components/organisms/HeaderNav";
+import { HeroSection } from "@/presentation/components/organisms/HeroSection";
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to login page
-    router.push("/login");
-  }, [router]);
-
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <Loader size="lg" />
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black">
+      <HeaderNav />
+      <HeroSection />
     </main>
   );
 }
