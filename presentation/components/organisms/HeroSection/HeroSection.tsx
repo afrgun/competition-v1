@@ -56,7 +56,7 @@ export const HeroSection: React.FC = () => {
             </Text>
 
             <Text as="p" className="text-base sm:text-lg !text-gray-400 font-bold">
-              #TeamLainNgeBug,kitaNgeGrowUp
+              #TeamLainNgeBug,kamiNgeGrowUp
             </Text>
           </div>
         )}
