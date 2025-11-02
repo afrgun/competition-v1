@@ -146,10 +146,7 @@ export class AuthRepository {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
           "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
-        },
-        body: JSON.stringify({
-          refresh_token: accessToken, // Use access_token as refresh_token per API spec
-        }),
+        }
       });
 
       const data = await response.json();
