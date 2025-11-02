@@ -48,7 +48,7 @@ export const HeroSection: React.FC = () => {
         {/* Additional Info */}
         {!countdown.isFinished && (
           <div className="mt-8 space-y-2">
-            <Text as="p" className="text-sm sm:text-base text-gray-100">
+            <Text as="p" className="text-sm sm:text-base !text-gray-100">
               Event starts on
             </Text>
             <Text as="p" className="text-base sm:text-lg !text-gray-100 font-medium">
