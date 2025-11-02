@@ -35,7 +35,7 @@ export const HeroSection: React.FC = () => {
           >
             Vibe Coding Competition
           </Text>
-          <Text as="p" className="text-lg sm:text-xl text-gray-400">
+          <Text as="p" className="text-lg sm:text-xl !text-gray-400">
             Get Ready for the Ultimate Coding Challenge
           </Text>
         </div>
@@ -48,11 +48,15 @@ export const HeroSection: React.FC = () => {
         {/* Additional Info */}
         {!countdown.isFinished && (
           <div className="mt-8 space-y-2">
-            <Text as="p" className="text-sm sm:text-base text-gray-500">
+            <Text as="p" className="text-sm sm:text-base text-gray-100">
               Event starts on
             </Text>
-            <Text as="p" className="text-base sm:text-lg text-gray-300 font-medium">
+            <Text as="p" className="text-base sm:text-lg !text-gray-100 font-medium">
               November 6, 2025 at 09:00 WIB
+            </Text>
+
+            <Text as="p" className="text-base sm:text-lg !text-gray-400 font-bold">
+              #TeamLainNgeBug,kitaNgeGrowUp
             </Text>
           </div>
         )}
