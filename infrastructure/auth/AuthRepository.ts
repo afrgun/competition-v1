@@ -81,10 +81,9 @@ export class AuthRepository {
           password: credentials.password,
         }),
       });
-
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || `Login failed: ${response.statusText}`

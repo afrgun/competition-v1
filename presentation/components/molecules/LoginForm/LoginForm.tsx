@@ -93,6 +93,8 @@ export const LoginForm: React.FC = () => {
         password,
       });
 
+      console.log(result)
+
       if (result.success) {
         // Redirect to dashboard
         router.push("/dashboard");

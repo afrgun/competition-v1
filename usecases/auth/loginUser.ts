@@ -19,12 +19,11 @@ export const loginUserInteractor = async (
   try {
     // Step 1: Call login API to get access token
     const loginResponse = await AuthRepository.login(credentials);
-
     // Step 2: Save access token
     storage.setToken(loginResponse.accessToken);
-
     // Step 3: Get user data using the access token
     const user = await AuthRepository.getUserData(loginResponse.accessToken);
+    console.log('user', user)
 
     // Step 4: Save user data
     storage.setUserData(user);
