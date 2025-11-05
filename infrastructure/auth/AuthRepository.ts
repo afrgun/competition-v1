@@ -1,4 +1,4 @@
-import { User, AuthCredentials, LoginResponse } from "@/domain/entities";
+import { User, AuthCredentials, LoginResponse, RegisterPayload, RegisterResponse } from "@/domain/entities";
 
 /**
  * AuthRepository - handles authentication API calls
@@ -42,6 +42,15 @@ interface LogoutApiResponse {
   success: boolean;
 }
 
+interface RegisterApiResponse {
+  data: {
+    id: string;
+    email: string;
+  };
+  success: boolean;
+  message?: string;
+}
+
 /**
  * Mappers: converts API response to domain entities
  */
@@ -58,6 +67,11 @@ const mapUserResponse = (
   id: data.id,
   email: data.email,
   accessToken: accessToken,
+});
+
+const mapRegisterResponse = (data: RegisterApiResponse["data"]): RegisterResponse => ({
+  id: data.id,
+  email: data.email,
 });
 
 /**
@@ -160,6 +174,47 @@ export class AuthRepository {
         throw error;
       }
       throw new Error("Network error occurred during logout");
+    }
+  }
+
+  /**
+   * Register new user
+   * @param payload - registration data
+   * @returns RegisterResponse with user id and email
+   */
+  static async register(payload: RegisterPayload): Promise<RegisterResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
+        },
+        body: JSON.stringify({
+          fullname: payload.fullName,
+          email: payload.email,
+          phone_number: payload.phoneNumber,
+          job_role: payload.jobRole,
+          institution: payload.institution,
+          password: payload.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.status) {
+        const errorData = data as ApiErrorResponse;
+        throw new Error(
+          errorData.error?.message || `Registration failed: ${response.statusText}`
+        );
+      }
+
+      return mapRegisterResponse(data.data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Network error occurred during registration");
     }
   }
 

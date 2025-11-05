@@ -5,6 +5,10 @@
 export interface User {
   id: string;
   email: string;
+  fullName?: string;
+  phoneNumber?: string;
+  jobRole?: string;
+  institution?: string;
   accessToken: string; // from login response, not from /me
 }
 
