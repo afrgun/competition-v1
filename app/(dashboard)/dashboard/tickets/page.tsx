@@ -4,113 +4,20 @@ import React, { useState, useEffect } from 'react'
 import { TableDynamic, ColumnType } from '@/presentation/components/atoms/TableDynamic'
 import { useRouter } from 'next/navigation'
 
-interface Ticket {
-  id: string
-  ticket_code: string
-  title: string
-  priority: 'Low' | 'Medium' | 'High' | 'Critical'
-  status: 'Open' | 'In Progress' | 'Resolved' | 'Closed'
-  technician: string
-  created_at: string
-  description?: string
-  category?: string
-}
+import { TicketRepository } from '@/infrastructure/tickets'
+import { GetTicketsInteractor } from '@/usecases/tickets'
+import { Ticket } from '@/shared/types/tickets'
 
-const mockTickets: Ticket[] = [
-  {
-    id: '1',
-    ticket_code: 'TKT-001',
-    title: 'Login issue on main application',
-    priority: 'High',
-    status: 'Open',
-    technician: 'John Doe',
-    created_at: '2024-01-15 10:30:00',
-    description: 'User cannot login to the main application',
-    category: 'Authentication'
-  },
-  {
-    id: '2',
-    ticket_code: 'TKT-002',
-    title: 'Printer not working',
-    priority: 'Medium',
-    status: 'In Progress',
-    technician: 'Jane Smith',
-    created_at: '2024-01-15 09:15:00',
-    description: 'Office printer on 3rd floor not responding',
-    category: 'Hardware'
-  },
-  {
-    id: '3',
-    ticket_code: 'TKT-003',
-    title: 'Email server down',
-    priority: 'Critical',
-    status: 'Resolved',
-    technician: 'Bob Johnson',
-    created_at: '2024-01-14 14:20:00',
-    description: 'Company email server experiencing downtime',
-    category: 'Infrastructure'
-  },
-  {
-    id: '4',
-    ticket_code: 'TKT-004',
-    title: 'Software installation request',
-    priority: 'Low',
-    status: 'Closed',
-    technician: 'Alice Brown',
-    created_at: '2024-01-14 11:45:00',
-    description: 'Need to install Adobe Creative Suite',
-    category: 'Software'
-  },
-  {
-    id: '5',
-    ticket_code: 'TKT-005',
-    title: 'Network connectivity issue',
-    priority: 'High',
-    status: 'Open',
-    technician: 'Unassigned',
-    created_at: '2024-01-15 13:00:00',
-    description: 'Cannot connect to network from conference room',
-    category: 'Network'
-  },
-  {
-    id: '6',
-    ticket_code: 'TKT-006',
-    title: 'Database performance slow',
-    priority: 'Medium',
-    status: 'In Progress',
-    technician: 'Charlie Wilson',
-    created_at: '2024-01-15 08:30:00',
-    description: 'Database queries running slower than usual',
-    category: 'Database'
-  },
-  {
-    id: '7',
-    ticket_code: 'TKT-007',
-    title: 'Mobile app crash',
-    priority: 'High',
-    status: 'Open',
-    technician: 'Diana Martinez',
-    created_at: '2024-01-15 15:20:00',
-    description: 'Mobile application crashes on startup',
-    category: 'Mobile'
-  },
-  {
-    id: '8',
-    ticket_code: 'TKT-008',
-    title: 'Password reset request',
-    priority: 'Low',
-    status: 'Resolved',
-    technician: 'Eva Chen',
-    created_at: '2024-01-14 16:45:00',
-    description: 'User needs password reset for VPN access',
-    category: 'Security'
-  }
-]
+interface TicketWithCode extends Ticket {
+  ticket_code: string
+  technician: string
+}
 
 export default function TicketsPage() {
   const router = useRouter()
-  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [tickets, setTickets] = useState<TicketWithCode[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
   const [totalTickets, setTotalTickets] = useState(0)
@@ -118,13 +25,31 @@ export default function TicketsPage() {
   useEffect(() => {
     const fetchTickets = async () => {
       setLoading(true)
+      setError(null)
+
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        setTickets(mockTickets)
-        setTotalTickets(mockTickets.length)
+        // Initialize Clean Architecture layers
+        const ticketRepository = new TicketRepository()
+        const getTicketsInteractor = new GetTicketsInteractor(ticketRepository)
+
+        // Execute use case
+        const ticketsData = await getTicketsInteractor.execute()
+
+        // Generate ticket codes for display and map assigned_to to technician
+        const ticketsWithCodes: TicketWithCode[] = ticketsData.map((ticket, index) => ({
+          ...ticket,
+          ticket_code: `TKT-${String(index + 1).padStart(3, '0')}`,
+          technician: ticket.assigned_to || 'Unassigned'
+        }))
+
+        setTickets(ticketsWithCodes)
+        setTotalTickets(ticketsWithCodes.length)
       } catch (error) {
         console.error('Error fetching tickets:', error)
+        // Repository sudah memiliki fallback data, jadi ini hanya error handling terakhir
+        setError('Failed to load tickets. Please refresh the page.')
+        setTickets([])
+        setTotalTickets(0)
       } finally {
         setLoading(false)
       }
@@ -163,7 +88,7 @@ export default function TicketsPage() {
     }
   }
 
-  const handleRowClick = (ticket: Ticket) => {
+  const handleRowClick = (ticket: TicketWithCode) => {
     router.push(`/dashboard/tickets/${ticket.id}`)
   }
 
@@ -172,7 +97,7 @@ export default function TicketsPage() {
     // In real implementation, you would fetch data for the new page
   }
 
-  const columns: ColumnType<Ticket>[] = [
+  const columns: ColumnType<TicketWithCode>[] = [
     {
       key: 'ticket_code',
       title: 'Ticket Code',
@@ -283,8 +208,33 @@ export default function TicketsPage() {
                 Manage and track support tickets
               </p>
             </div>
+            <button
+              onClick={() => router.push('/dashboard/tickets/create')}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Create New Ticket
+            </button>
           </div>
         </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error loading tickets</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  {error}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

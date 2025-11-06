@@ -1,0 +1,1 @@
+export { GetTicketsInteractor, type GetTicketsUseCase } from './getTickets'

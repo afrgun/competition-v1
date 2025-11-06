@@ -1,0 +1,1 @@
+export { TicketRepository, type ITicketRepository } from './TicketRepository'
