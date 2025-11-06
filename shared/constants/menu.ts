@@ -15,11 +15,6 @@ export const DASHBOARD_MENU: MenuItem[] = [
     href: "/dashboard/my-ticket",
     roles: ["employee"],
   },
-  {
-    label: "FAQ",
-    href: "/dashboard/faq",
-    roles: ["employee"],
-  },
 
   // Admin menu items
   {
