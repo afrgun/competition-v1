@@ -1,10 +1,16 @@
 /**
+ * User role type for dashboard navigation
+ */
+export type UserRole = "employee" | "admin";
+
+/**
  * User entity - represents authenticated user in the domain
  * Data from /v1/auth/me endpoint
  */
 export interface User {
   id: string;
   email: string;
+  role: UserRole; // user role for dashboard navigation
   fullName?: string;
   phoneNumber?: string;
   jobRole?: string;
