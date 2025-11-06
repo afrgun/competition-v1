@@ -23,6 +23,7 @@ interface ApiErrorResponse {
 export interface ITicketRepository {
   getTickets(): Promise<Ticket[]>
   getTicketById(id: string): Promise<Ticket>
+  assignTicket(ticketId: string, assignedTo: string): Promise<Ticket>
 }
 
 export class TicketRepository implements ITicketRepository {
@@ -145,6 +146,46 @@ export class TicketRepository implements ITicketRepository {
     } catch (error) {
       console.error('Error fetching ticket:', error)
       throw new Error('Failed to fetch ticket')
+    }
+  }
+
+  async assignTicket(ticketId: string, assignedTo: string): Promise<Ticket> {
+    try {
+      const response = await fetch(`${this.baseUrl}/tickets/${assignedTo}/assign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Ticket assigned successfully:', data)
+
+      // Map API response to our domain entity
+      if (data.success && data.data) {
+        return {
+          id: data.data.id?.toString() || ticketId,
+          title: data.data.title || '',
+          description: data.data.description || '',
+          status: data.data.status || 'IN_PROGRESS',
+          category: data.data.category || 'General',
+          priority: data.data.priority || 'Medium',
+          created_by: data.data.created_by || '',
+          assigned_to: data.data.assigned_to || assignedTo,
+          created_at: data.data.created_at || new Date().toISOString(),
+          updated_at: data.data.updated_at || new Date().toISOString(),
+        }
+      }
+
+      throw new Error('Invalid response from API')
+    } catch (error) {
+      console.error('Error assigning ticket:', error)
+      throw new Error('Failed to assign ticket')
     }
   }
 
