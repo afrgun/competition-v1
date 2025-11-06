@@ -45,6 +45,12 @@ export const HeroSection: React.FC = () => {
           <CountdownDisplay countdown={countdown} />
         </div>
 
+        <div className="mt-8 space-y-2">
+            <Text as="p" className="text-base sm:text-lg !text-gray-400 font-bold">
+              #TeamLainNgeBug,kamiNgeGrowUp
+            </Text>
+          </div>
+
         {/* Additional Info */}
         {!countdown.isFinished && (
           <div className="mt-8 space-y-2">

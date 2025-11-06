@@ -2,7 +2,11 @@
 import {
   SubmitSmartTicketPayload,
   SubmitSmartTicketResponse,
+  SubmitCommentPayload,
+  SubmitCommentResponse,
   Ticket,
+  Comment,
+  GetCommentsResponse,
 } from "@/shared/types";
 
 // API base URL from environment variable
@@ -221,6 +225,75 @@ export class TicketRepository implements ITicketRepository {
         throw error;
       }
       throw new Error("Network error occurred while submitting ticket");
+    }
+  }
+
+  /**
+   * Submit comment to a ticket
+   * @param ticketId - Ticket ID
+   * @param payload - Comment body
+   * @returns Success status
+   */
+  static async submitComment(
+    ticketId: string,
+    payload: SubmitCommentPayload
+  ): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/tickets/${ticketId}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          body: payload.body,
+        }),
+      });
+
+      const data: SubmitCommentResponse | ApiErrorResponse =
+        await response.json();
+
+      if (!data.success) {
+        const errorData = data as ApiErrorResponse;
+        throw new Error(
+          errorData.error?.message || "Failed to submit comment"
+        );
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Network error occurred while submitting comment");
+    }
+  }
+
+  /**
+   * Get comments for a ticket
+   * @param ticketId - Ticket ID
+   * @returns Array of comments
+   */
+  static async getComments(ticketId: string): Promise<Comment[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/tickets/${ticketId}/comments`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: GetCommentsResponse = await response.json();
+
+      return data.data.comments || [];
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Network error occurred while fetching comments");
     }
   }
 }

@@ -2,6 +2,8 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { submitCommentInteractor, getCommentsInteractor } from "@/usecases/tickets";
+import { Comment } from "@/shared/types";
 
 /**
  * Ticket Detail Page - Placeholder
@@ -12,12 +14,93 @@ export default function TicketDetailPage() {
   const router = useRouter();
   const ticketId = params.id as string;
   const [loading, setLoading] = useState(true);
+  const [comment, setComment] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+
+  const fetchComments = async () => {
+    setIsLoadingComments(true);
+    const result = await getCommentsInteractor(ticketId);
+    setIsLoadingComments(false);
+
+    if (result.success && result.comments) {
+      setComments(result.comments);
+    }
+  };
+
+  const getRoleInitials = (role: string) => {
+    if (role === "EMPLOYEE") return "EM";
+    if (role === "ADMIN") return "AD";
+    if (role === "AI") return "AI";
+    return "??";
+  };
+
+  const getRoleLabel = (role: string) => {
+    if (role === "EMPLOYEE") return "Employee";
+    if (role === "ADMIN") return "Admin";
+    if (role === "AI") return "AI Assistant";
+    return "User";
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 1) {
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    }
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  };
 
   useEffect(() => {
     // Simulate loading
     const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Fetch comments on mount
+    fetchComments();
+  }, [ticketId]);
+
+  const handleSubmitComment = async () => {
+    if (!comment.trim()) return;
+
+    // Reset messages
+    setSuccessMessage("");
+    setErrorMessage("");
+    setIsSubmittingComment(true);
+
+    // Call usecase
+    const result = await submitCommentInteractor(ticketId, comment);
+
+    setIsSubmittingComment(false);
+
+    if (result.success) {
+      setSuccessMessage(result.message || "Comment submitted successfully!");
+      setComment(""); // Clear textarea
+
+      // Refetch comments to show the new one
+      await fetchComments();
+
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+    } else {
+      setErrorMessage(result.message || "Failed to submit comment");
+    }
+  };
 
   if (loading) {
     return (
@@ -130,6 +213,96 @@ export default function TicketDetailPage() {
           <p className="text-gray-400 text-sm">
             Activity timeline will be displayed here
           </p>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-6">Comments</h3>
+
+        {/* Loading Comments */}
+        {isLoadingComments && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+
+        {/* Comments List */}
+        {!isLoadingComments && comments.length > 0 && (
+          <div className="space-y-4 mb-6">
+            {comments.map((commentItem) => (
+              <div key={commentItem.id} className="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-medium text-gray-300">
+                      {getRoleInitials(commentItem.role)}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-medium text-white">
+                        {getRoleLabel(commentItem.role)}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatDate(commentItem.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {commentItem.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* No Comments */}
+        {!isLoadingComments && comments.length === 0 && (
+          <div className="text-center py-8 mb-6">
+            <p className="text-gray-400 text-sm">
+              No comments yet. Be the first to comment!
+            </p>
+          </div>
+        )}
+
+        {/* Add Comment Form */}
+        <div className="border-t border-gray-700 pt-6">
+          <h4 className="text-sm font-medium text-gray-300 mb-3">
+            Add a Comment
+          </h4>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="bg-green-900 border border-green-700 rounded-lg p-3 mb-4">
+              <p className="text-green-200 text-sm">{successMessage}</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="bg-red-900 border border-red-700 rounded-lg p-3 mb-4">
+              <p className="text-red-200 text-sm">{errorMessage}</p>
+            </div>
+          )}
+
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Type your comment here..."
+            rows={4}
+            disabled={isSubmittingComment}
+            className="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          />
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={handleSubmitComment}
+              disabled={isSubmittingComment || !comment.trim()}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+            >
+              {isSubmittingComment ? "Submitting..." : "Submit Comment"}
+            </button>
+          </div>
         </div>
       </div>
 
