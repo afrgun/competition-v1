@@ -23,8 +23,8 @@ export const DASHBOARD_MENU: MenuItem[] = [
 
   // Admin menu items
   {
-    label: "Ticket",
-    href: "/dashboard/ticket",
+    label: "Tickets",
+    href: "/dashboard/tickets",
     roles: ["admin"],
   },
   {
