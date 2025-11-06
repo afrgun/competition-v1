@@ -5,8 +5,9 @@ import { TableDynamic, ColumnType } from '@/presentation/components/atoms/TableD
 import { useRouter } from 'next/navigation'
 
 import { TicketRepository } from '@/infrastructure/tickets'
-import { GetTicketsInteractor } from '@/usecases/tickets'
+import { GetTicketsInteractor, AssignTicketInteractor } from '@/usecases/tickets'
 import { Ticket } from '@/shared/types/tickets'
+import { AssignTicketModal } from '@/presentation/components/molecules/AssignTicketModal'
 
 interface TicketWithCode extends Ticket {
   ticket_code: string
@@ -21,6 +22,11 @@ export default function TicketsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
   const [totalTickets, setTotalTickets] = useState(0)
+
+  // Assign modal states
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [assigningTicket, setAssigningTicket] = useState<TicketWithCode | null>(null)
+  const [assignLoading, setAssignLoading] = useState(false)
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -95,6 +101,60 @@ export default function TicketsPage() {
   const handlePageChange = (page: number, size: number) => {
     setCurrentPage(page)
     // In real implementation, you would fetch data for the new page
+  }
+
+  const handleAssignClick = (ticket: TicketWithCode, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setAssigningTicket(ticket)
+    setIsAssignModalOpen(true)
+  }
+
+  const handleAssignTicket = async (assignedTo: string) => {
+    if (!assigningTicket) return
+
+    setAssignLoading(true)
+    try {
+      // Initialize use case
+      const ticketRepository = new TicketRepository()
+      const assignTicketInteractor = new AssignTicketInteractor(ticketRepository)
+
+      // Execute assign
+      const updatedTicket = await assignTicketInteractor.execute(assigningTicket.id, assignedTo)
+
+      // Update local state
+      setTickets(prevTickets =>
+        prevTickets.map(ticket =>
+          ticket.id === assigningTicket.id
+            ? {
+                ...ticket,
+                assigned_to: updatedTicket.assigned_to,
+                technician: updatedTicket.assigned_to || 'Unassigned',
+                status: updatedTicket.status,
+                updated_at: updatedTicket.updated_at
+              }
+            : ticket
+        )
+      )
+
+      // Close modal
+      setIsAssignModalOpen(false)
+      setAssigningTicket(null)
+
+      console.log(`Ticket ${assigningTicket.ticket_code} assigned successfully to ${assignedTo}`)
+    } catch (error) {
+      console.error('Error assigning ticket:', error)
+      // Handle error - show toast or alert
+      alert('Failed to assign ticket. Please try again.')
+    } finally {
+      setAssignLoading(false)
+    }
+  }
+
+  const handleCloseAssignModal = () => {
+    if (!assignLoading) {
+      setIsAssignModalOpen(false)
+      setAssigningTicket(null)
+    }
   }
 
   const columns: ColumnType<TicketWithCode>[] = [
@@ -184,6 +244,23 @@ export default function TicketsPage() {
             hour: '2-digit',
             minute: '2-digit'
           })}
+        </div>
+      )
+    },
+    {
+      key: 'actions',
+      title: 'Actions',
+      width: '100px',
+      align: 'center',
+      render: (_, record) => (
+        <div className="flex justify-center space-x-2">
+          <button
+            onClick={(e) => handleAssignClick(record, e)}
+            className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={record.status === 'Closed'}
+          >
+            Assign
+          </button>
         </div>
       )
     }
@@ -330,6 +407,16 @@ export default function TicketsPage() {
           </div>
         </div>
       </div>
+
+      {/* Assign Ticket Modal */}
+      <AssignTicketModal
+        isOpen={isAssignModalOpen}
+        onClose={handleCloseAssignModal}
+        onAssign={handleAssignTicket}
+        loading={assignLoading}
+        ticketTitle={assigningTicket?.title}
+        currentAssignedTo={assigningTicket?.technician}
+      />
     </div>
   )
 }
