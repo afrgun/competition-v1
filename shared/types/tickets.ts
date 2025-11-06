@@ -13,3 +13,16 @@ export interface Ticket {
 
 export type TicketStatus = 'Open' | 'In Progress' | 'Resolved' | 'Closed';
 export type TicketPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+/**
+ * Ticket types for Smart Ticket submission
+ */
+
+export interface SubmitSmartTicketPayload {
+  description: string;
+  created_by: string;
+}
+
+export interface SubmitSmartTicketResponse {
+  success: boolean;
+  data?: any;
+}

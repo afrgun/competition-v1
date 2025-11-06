@@ -5,3 +5,4 @@ export * from "./Loader";
 export * from "./Timer";
 export * from "./SidebarItem";
 export * from "./Textarea";
+export * from "./Modal";
