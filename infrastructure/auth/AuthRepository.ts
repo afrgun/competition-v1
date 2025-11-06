@@ -8,6 +8,13 @@ import { User, AuthCredentials, LoginResponse, RegisterPayload, RegisterResponse
 // API base URL from environment variable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
+// Developer mode - set role manually for testing (will be replaced by API response later)
+const DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === "true";
+const DEV_DEFAULT_ROLE: "employee" | "admin" = (process.env.NEXT_PUBLIC_DEV_ROLE as "employee" | "admin") || "employee";
+
+// Mock mode - skip API calls and use dummy data for login
+const USE_MOCK_AUTH = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === "true";
+
 /**
  * API Response Types
  */
@@ -24,7 +31,7 @@ interface UserApiResponse {
   data: {
     id: string;
     email: string;
-    role: "employee" | "admin";
+    role?: "employee" | "admin"; // Optional - will use DEV_DEFAULT_ROLE in dev mode
   };
   success: boolean;
 }
@@ -67,7 +74,7 @@ const mapUserResponse = (
 ): User => ({
   id: data.id,
   email: data.email,
-  role: data.role,
+  role: DEV_MODE ? DEV_DEFAULT_ROLE : (data.role || DEV_DEFAULT_ROLE), // Use dev role if in dev mode or if API doesn't return role
   accessToken: accessToken,
 });
 
@@ -86,6 +93,11 @@ export class AuthRepository {
    * @returns LoginResponse with access token
    */
   static async login(credentials: AuthCredentials): Promise<LoginResponse> {
+    // Use mock login if USE_MOCK_AUTH is enabled
+    if (USE_MOCK_AUTH) {
+      return this.mockLogin(credentials);
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
         method: "POST",
@@ -122,6 +134,11 @@ export class AuthRepository {
    * @returns User entity with id and email
    */
   static async getUserData(accessToken: string): Promise<User> {
+    // Use mock user data if USE_MOCK_AUTH is enabled
+    if (USE_MOCK_AUTH) {
+      return this.mockGetUserData(accessToken);
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/v1/auth/me`, {
         method: "GET",
@@ -222,24 +239,33 @@ export class AuthRepository {
 
   /**
    * Mock login for development/testing
-   * Remove this when real API is ready
+   * Accepts any email/password for easy testing
    */
-  static async mockLogin(credentials: AuthCredentials): Promise<User> {
+  static async mockLogin(credentials: AuthCredentials): Promise<LoginResponse> {
     // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Simple validation
-    if (
-      credentials.email === "test@example.com" &&
-      credentials.password === "password123"
-    ) {
-      return {
-        id: "user_001",
-        email: credentials.email,
-        accessToken: "mock_token_" + Date.now(),
-      };
-    }
+    // Accept any credentials for mock login
+    return {
+      accessToken: "mock_token_" + Date.now(),
+      tokenType: "Bearer",
+      expiresIn: 3600,
+    };
+  }
 
-    throw new Error("Invalid email or password");
+  /**
+   * Mock getUserData for development/testing
+   * Returns user with role from DEV_DEFAULT_ROLE
+   */
+  static async mockGetUserData(accessToken: string): Promise<User> {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    return {
+      id: "mock_user_" + Math.random().toString(36).substr(2, 9),
+      email: "mock@example.com",
+      role: DEV_DEFAULT_ROLE,
+      accessToken: accessToken,
+    };
   }
 }
