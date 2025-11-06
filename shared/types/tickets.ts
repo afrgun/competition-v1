@@ -22,7 +22,31 @@ export interface SubmitSmartTicketPayload {
   created_by: string;
 }
 
+export interface SubmitCommentPayload {
+  body: string;
+}
+
+export interface SubmitCommentResponse {
+  success: boolean;
+  data?: any;
+}
+
 export interface SubmitSmartTicketResponse {
   success: boolean;
   data?: any;
+}
+
+export interface Comment {
+  id: string;
+  ticket_id: string;
+  author_id: string;
+  role: "EMPLOYEE" | "ADMIN" | "AI";
+  body: string;
+  created_at: string;
+}
+
+export interface GetCommentsResponse {
+  data: {
+    comments: Comment[];
+  };
 }
