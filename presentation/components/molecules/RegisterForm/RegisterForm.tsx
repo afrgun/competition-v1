@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/presentation/components/atoms/Input";
+import { Button } from "@/presentation/components/atoms/Button";
 import { registerUserInteractor } from "@/usecases/auth/registerUser";
 
 export const RegisterForm: React.FC = () => {
@@ -228,7 +229,7 @@ export const RegisterForm: React.FC = () => {
         />
 
         {/* Email and Phone Number Row */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Email"
             type="email"
@@ -273,7 +274,7 @@ export const RegisterForm: React.FC = () => {
         </div>
 
         {/* Job Role and Institution Row */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Job Role Dropdown */}
           <div className="w-full">
             <label className="block text-sm font-medium text-[#001a41] mb-2">
@@ -298,11 +299,6 @@ export const RegisterForm: React.FC = () => {
                 <option value="Student">Student</option>
                 <option value="Other">Other</option>
               </select>
-              {/* <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg width="18" height="11" viewBox="0 0 18 11" fill="none">
-                  <path d="M1 1.5L9 9.5L17 1.5" stroke="#001a41" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div> */}
             </div>
             {jobRoleError && <p className="mt-1 text-sm text-red-600">{jobRoleError}</p>}
           </div>
@@ -325,7 +321,7 @@ export const RegisterForm: React.FC = () => {
         </div>
 
         {/* Password */}
-        <div className="w-full max-w-[428px]">
+        <div className="w-full md:max-w-[428px]">
           <Input
             label="Password"
             type="password"
@@ -371,13 +367,16 @@ export const RegisterForm: React.FC = () => {
       {confirmTermsError && <p className="text-sm text-red-600">{confirmTermsError}</p>}
 
       {/* Submit Button */}
-      <button
+      <Button
         type="submit"
+        variant="pink"
+        size="md"
+        fullWidth
         disabled={!isFormValid || isLoading}
-        className="w-full h-10 bg-[#cd3266] hover:bg-[#b82957] text-white font-medium text-sm rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        isLoading={isLoading}
       >
-        {isLoading ? "Loading..." : "Continue"}
-      </button>
+        Continue
+      </Button>
     </form>
   );
 };
