@@ -7,7 +7,7 @@ export const DASHBOARD_MENU: MenuItem[] = [
   // Employee menu items
   {
     label: "Home",
-    href: "/dashboard/home",
+    href: "/dashboard",
     roles: ["employee"],
   },
   {
