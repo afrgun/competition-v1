@@ -37,16 +37,16 @@ interface DynamicTableProps {
 
 ### 📁 Struktur Folder
 ```
-components/
- ├─ ui/
- │   ├─ TableContainer.tsx
- │   ├─ TableHeader.tsx
- │   ├─ TableRow.tsx
- │   ├─ TableCell.tsx
- │   └─ TableFooter.tsx
- └─ features/
-     └─ DynamicTable/
-         └─ DynamicTable.tsx
+buat didalam root/presentation/components/
+
+root/
+├─ presentation/        → Components (UI-only logic)
+│  ├─ components/
+│  │  ├─ atoms/         → Basic reusable UI (Button, Input, Text, etc)
+│  │  ├─ molecules/     → Composition of atoms (FormField, Card, etc)
+│  │  └─ organisms/     → Complex UI sections (LoginForm, DashboardGrid)
+│  └─ layouts/          → Shared layouts (e.g., AuthLayout, MainLayout)
+
 ```
 
 ### 💡 Behavior
@@ -185,15 +185,15 @@ const ThemeToggle = () => {
 
 ## 📁 Struktur Folder (Clean Architecture)
 ```
-src/
-├─ presentation/
-│  └─ components/
-│     └─ atoms/
-│        └─ TableDynamic/
-│           ├─ TableDynamic.tsx         # Komponen utama
-│           ├─ TableDynamic.stories.tsx # Storybook documentation
-│           ├─ TableDynamic.test.tsx    # Unit tests
-│           └─ index.ts                 # Export file
+buat didalam root/presentation/components/
+
+root/
+├─ presentation/        → Components (UI-only logic)
+│  ├─ components/
+│  │  ├─ atoms/         → Basic reusable UI (Button, Input, Text, etc)
+│  │  ├─ molecules/     → Composition of atoms (FormField, Card, etc)
+│  │  └─ organisms/     → Complex UI sections (LoginForm, DashboardGrid)
+│  └─ layouts/          → Shared layouts (e.g., AuthLayout, MainLayout)
 ```
 
 ---
