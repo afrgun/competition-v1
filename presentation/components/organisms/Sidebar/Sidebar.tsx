@@ -3,6 +3,9 @@
 import { UserRole } from "@/domain/entities";
 import { DASHBOARD_MENU } from "@/shared/constants";
 import { SidebarMenu } from "@/presentation/components/molecules";
+import { Button } from "@/presentation/components/atoms";
+import { logoutUserInteractor } from "@/usecases/auth";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -14,12 +17,27 @@ interface SidebarProps {
  * Filters menu items based on user role and handles responsive behavior
  */
 export const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Filter menu items based on user role
   const filteredMenu = DASHBOARD_MENU.filter((item) =>
     item.roles.includes(userRole)
   );
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutUserInteractor();
+      router.push("/login");
+    } catch (error) {
+      // Even if logout fails, redirect to login
+      router.push("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <>
@@ -84,7 +102,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t border-gray-800 space-y-3">
+          <Button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition-colors duration-200"
+          >
+            {isLoggingOut ? "Logging out..." : "Logout"}
+          </Button>
           <p className="text-xs text-gray-500 text-center">
             Vibe Competition 2024
           </p>

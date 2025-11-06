@@ -139,3 +139,24 @@ const isActive = pathname.startsWith(item.href);
 # 📅 Deadline Implementasi
 - Dev: 2 hari
 - Test: 1 hari
+
+
+## Revision Log
+
+### Tambahkan Menu Logout
+implementation
+```ts
+const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutUserInteractor();
+      router.push("/login");
+    } catch (error) {
+      // Even if logout fails, redirect to login
+      router.push("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+```
+
