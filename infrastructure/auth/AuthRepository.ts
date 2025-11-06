@@ -24,6 +24,7 @@ interface UserApiResponse {
   data: {
     id: string;
     email: string;
+    role: "employee" | "admin";
   };
   success: boolean;
 }
@@ -66,6 +67,7 @@ const mapUserResponse = (
 ): User => ({
   id: data.id,
   email: data.email,
+  role: data.role,
   accessToken: accessToken,
 });
 
