@@ -3,3 +3,4 @@ export * from "./Input";
 export * from "./Text";
 export * from "./Loader";
 export * from "./Timer";
+export * from "./SidebarItem";
