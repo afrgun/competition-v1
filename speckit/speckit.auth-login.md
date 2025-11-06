@@ -42,7 +42,7 @@ Menyediakan halaman login agar pengguna dapat mengakses dashboard aplikasi.
 
 src/
  ├─ app/
- │   └─ (auth)/
+ │   └─ auth/
  │       └─ login/
  │           ├─ page.tsx              → halaman login utama
  │           └─ layout.tsx (opsional) → layout khusus auth
@@ -93,40 +93,216 @@ export interface AuthCredentials {
 #### 2. Versi API Contract (Jika BE Sudah Fix)
 Jika backend sudah punya kontrak JSON final, sinkronkan di sini dan tambahkan mapper di `infrastructure`.
 
-**Contoh Response dari BE**
+**base url**
+https://e29d425094dc.ngrok-free.app/
+
+
+#### Api Login
+**url**
+/v1/auth/login
+
+**method**
+POST
+
+**Request Body**
 ```json
 {
-  "id": "user_001",
-  "fullname": "Afri",
   "email": "afri@mail.com",
-  "access_token": "abcd123"
+  "password": "123456"
 }
 ```
 
+
+**Response dari BE**
+```status
+200 OK
+```
+
+```json
+{
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ey",
+    "token_type": "Bearer",
+    "expires_in": 3600
+  },
+  "success": true
+}
+```
+
+**Error Response**
+```status
+401 Unauthorized
+```
+
+```json
+{
+  "error": {
+    "code": "INVALID_CREDENTIALS",
+    "message": "Invalid email or password",
+    "details": {}
+  },
+  "success": false
+}
+```
+
+
 **Entity di Domain**
 ```ts
+// User entity dari /v1/auth/me
 export interface User {
   id: string;
-  fullName: string;
   email: string;
+  accessToken: string; // disimpan dari login, bukan dari /me response
+}
+
+// Login response entity
+export interface LoginResponse {
   accessToken: string;
+  tokenType: string;
+  expiresIn: number;
 }
 ```
 
 **Mapper di Infrastructure**
 ```ts
-export const mapUserResponse = (data: any): User => ({
-  id: data.id,
-  fullName: data.fullname,
-  email: data.email,
+// Mapper untuk login response
+export const mapLoginResponse = (data: any): LoginResponse => ({
   accessToken: data.access_token,
+  tokenType: data.token_type,
+  expiresIn: data.expires_in,
+});
+
+// Mapper untuk user response dari /v1/auth/me
+export const mapUserResponse = (data: any, accessToken: string): User => ({
+  id: data.id,
+  email: data.email,
+  accessToken: accessToken, // token dari login, bukan dari /me
 });
 ```
 
 🧠 **Catatan:**
-- Domain tidak boleh tahu bentuk asli response BE.  
-- Mapper bertugas menyesuaikan struktur data dari API ke bentuk domain entity.  
+- Domain tidak boleh tahu bentuk asli response BE.
+- Mapper bertugas menyesuaikan struktur data dari API ke bentuk domain entity.
+- User entity menggabungkan data dari 2 endpoint: login (token) + /me (id, email)
 - Jika API berubah, hanya layer `infrastructure` yang perlu diubah — domain dan UI tetap stabil.
+
+---
+
+#### Api auth Refresh
+**url**
+/v1/auth/refresh
+
+**method**
+POST
+
+**Request Header Parameter**
+```
+Name: Cookie
+Value: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response dari BE**
+```json
+{
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ey",
+    "token_type": "Bearer",
+    "expires_in": 3600
+  },
+  "success": true
+}
+```
+
+---
+
+#### Api Logout
+**url**
+/v1/auth/logout
+
+**method**
+POST
+
+**Headers**
+```
+Authorization: Bearer {access_token}
+```
+
+**Request Body**
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**🧠 Note:**
+- Gunakan `access_token` yang sama sebagai parameter `refresh_token` di request body
+
+**Response dari BE**
+```status
+200 OK
+```
+
+```json
+{
+  "data": null,
+  "success": true
+}
+```
+
+---
+
+#### Api Get User
+**url**
+/v1/auth/me
+
+**method**
+GET
+
+**Headers**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response dari BE**
+```status
+200 OK
+```
+
+```json
+{
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "email": "demo@example.com"
+  },
+  "success": true
+}
+```
+
+**Error Response**
+```status
+401 Unauthorized
+```
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or expired token",
+    "details": {}
+  },
+  "success": false
+}
+```
+
+**🧠 Note:**
+- User entity (id, email) didapat dari endpoint ini, bukan dari login response
+- Panggil endpoint ini setelah login berhasil untuk mendapatkan data user
 
 ---
 
@@ -134,9 +310,11 @@ export const mapUserResponse = (data: any): User => ({
 1. **User** mengisi email & password di form.
 2. **LoginForm** memanggil `loginUserInteractor` di layer `usecases`.
 3. `loginUserInteractor` memanggil `AuthRepository.login()`.
-4. Jika sukses → token disimpan via `storage.ts`.
-5. Navigasi diarahkan ke `/dashboard`.
-6. Jika gagal → tampilkan error di form.
+4. Jika sukses → simpan `access_token` via `storage.ts`.
+5. **Call `/v1/auth/me`** dengan `access_token` untuk mendapatkan user data (id, email).
+6. Simpan user data ke storage.
+7. Navigasi diarahkan ke `/dashboard`.
+8. Jika gagal → tampilkan error di form.
 
 ---
 
@@ -200,3 +378,25 @@ export default function LoginPage() {
   );
 }
 ```
+
+---
+
+## 📝 Revision Log
+
+### [2024-11-02] - API Integration Update
+**Changed:**
+- Updated API contract dengan real backend endpoints
+- Tambahkan Authorization header untuk `/v1/auth/me` dan `/v1/auth/logout`
+- Update flow: Login → Call `/v1/auth/me` → Get user data
+- Update Entity & Mapper: Pisahkan `LoginResponse` dan `User` entity
+- Clarify: `access_token` digunakan sebagai `refresh_token` parameter
+
+**Added:**
+- Endpoint `/v1/auth/me` untuk mendapatkan user data (id, email)
+- Endpoint `/v1/auth/refresh` untuk refresh token
+- Endpoint `/v1/auth/logout` untuk logout
+- Error response documentation untuk setiap endpoint
+
+**Notes:**
+- Base URL: `https://e29d425094dc.ngrok-free.app/`
+- User entity digabungkan dari 2 responses: login (token) + /me (id, email)

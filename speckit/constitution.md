@@ -37,8 +37,8 @@ src/
 │  │  └─ organisms/     → Complex UI sections (LoginForm, DashboardGrid)
 │  └─ layouts/          → Shared layouts (e.g., AuthLayout, MainLayout)
 ├─ app/                 → Routing layer (App Router: page.tsx, layout.tsx, loading.tsx)
-│  ├─ (auth)/           → Auth routes (login, register)
-│  └─ (dashboard)/      → Private routes (home, analytics, etc)
+│  ├─ auth/             → Auth routes (login, register)
+│  └─ dashboard/        → Private routes (home, analytics, etc)
 └─ shared/              → Utils, constants, and config (helpers, types, storage)
 
 ### Folder Responsibilities
