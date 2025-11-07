@@ -113,7 +113,7 @@ export class AuthRepository {
       const data = await response.json();
       console.log(data)
 
-      if (!data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || `Login failed: ${response.statusText}`
@@ -152,7 +152,7 @@ export class AuthRepository {
 
       const data = await response.json();
 
-      if (!data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || "Failed to get user data"

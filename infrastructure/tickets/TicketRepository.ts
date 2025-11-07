@@ -96,19 +96,20 @@ export class TicketRepository implements ITicketRepository {
         return this.getMockTickets()
       }
 
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
+
       console.log('Successfully fetched tickets from API:', data)
 
       // Map API response to our domain entity
-      return data.map((ticket: any) => ({
-        id: ticket.id?.toString() || '',
-        title: ticket.title || '',
-        description: ticket.description || '',
-        status: ticket.status || 'Open',
-        category: ticket.category || 'General',
-        priority: ticket.priority || 'Medium',
-        created_by: ticket.created_by || '',
-        assigned_to: ticket.assigned_to || null,
+      return data.data.tickets.map((ticket: any) => ({
+        id: ticket.id?.toString(),
+        title: ticket.title,
+        description: ticket.description,
+        status: ticket.status,
+        category: ticket.category,
+        priority: ticket.priority,
+        created_by: ticket.created_by,
+        assigned_to: ticket.assigned_to,
         created_at: ticket.created_at || new Date().toISOString(),
         updated_at: ticket.updated_at || new Date().toISOString(),
       }))

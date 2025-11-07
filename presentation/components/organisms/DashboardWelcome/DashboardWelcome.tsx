@@ -90,7 +90,7 @@ export const DashboardWelcome: React.FC = () => {
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-white px-4">
         {/* Welcome Title */}
         <h1 className="text-4xl md:text-5xl font-bold mb-12 text-center">
-          Welcome to Dashboard 👋
+          Welcome to Smart Ticketing Platform 👋
         </h1>
 
         {/* AI Chat Input Section */}
@@ -126,7 +126,7 @@ export const DashboardWelcome: React.FC = () => {
         </div>
 
         {/* Helper Text */}
-        <p className="text-gray-400 text-sm mt-8 text-center">
+        <p className="text-gray-400 text-xl mt-8 text-center">
           Ketik pertanyaan atau masalah Anda, lalu pilih cara yang tepat untuk
           mendapatkan bantuan
         </p>

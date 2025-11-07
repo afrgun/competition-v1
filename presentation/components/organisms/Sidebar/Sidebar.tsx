@@ -111,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
             {isLoggingOut ? "Logging out..." : "Logout"}
           </Button>
           <p className="text-xs text-gray-500 text-center">
-            Vibe Competition 2024
+            Smart Ticketing Platform 2025
           </p>
         </div>
       </aside>
