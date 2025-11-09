@@ -3,3 +3,7 @@ export * from "./HeroSection";
 export * from "./Sidebar";
 export * from "./DashboardWelcome";
 export * from "./AiSuggestionList";
+export * from "./AboutHero";
+export * from "./AboutFeatures";
+export * from "./AboutAdvantages";
+export * from "./AboutScreenshots";
