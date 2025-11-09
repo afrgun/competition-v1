@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { RegisterForm } from "@/presentation/components/molecules/RegisterForm";
+import { HeaderNav } from "../HeaderNav";
 
 export const RegisterSection: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,8 +19,10 @@ export const RegisterSection: React.FC = () => {
       />
 
       {/* Header */}
-      <header className="relative flex items-center justify-between px-4 md:px-8 lg:px-16 py-4">
-        {/* Logo Section */}
+      <HeaderNav />
+            
+      {/* <header className="relative flex items-center justify-between px-4 md:px-8 lg:px-16 py-4">
+        <!-- Logo Section -->
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 md:w-6 md:h-6 bg-[#cd3266] rounded"></div>
@@ -32,7 +35,7 @@ export const RegisterSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop Navigation */}
+        <!-- Desktop Navigation -->
         <div className="hidden md:flex items-center gap-8">
           <div className="flex items-center gap-6">
             <a href="#" className="text-base font-medium text-[#001a41] underline hover:opacity-80">
@@ -49,7 +52,7 @@ export const RegisterSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Kebab Menu */}
+        <!-- Mobile Kebab Menu -->
         <div className="md:hidden relative">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -63,7 +66,7 @@ export const RegisterSection: React.FC = () => {
             </svg>
           </button>
 
-          {/* Mobile Dropdown Menu */}
+          <!-- Mobile Dropdown Menu -->
           {isMenuOpen && (
             <>
               <div
@@ -87,10 +90,12 @@ export const RegisterSection: React.FC = () => {
             </>
           )}
         </div>
-      </header>
+      </header> */}
+      
 
       {/* Form Container */}
-      <div className="relative flex items-start justify-center pt-8 pb-16 px-4">
+      <div className="relative flex items-start justify-center pt-36 pb-16 px-4">
+
         <div className="w-full max-w-[720px] bg-white border border-[#d1d3db] rounded-lg p-4 md:p-6 shadow-sm">
           <RegisterForm />
         </div>
