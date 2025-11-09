@@ -32,7 +32,7 @@ export const Text: React.FC<TextProps> = ({
     h4: "text-xl font-semibold",
     h5: "text-lg font-medium",
     h6: "text-base font-medium",
-    body: "text-base",
+    body: "",
     caption: "text-sm",
     small: "text-xs",
   };
