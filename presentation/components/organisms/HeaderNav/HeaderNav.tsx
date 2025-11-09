@@ -18,10 +18,11 @@ export const HeaderNav: React.FC = () => {
 
           {/* Login Button */}
           <div>
-            <Link href="/login">
-              <Button variant="primary" size="sm">
-                Login
-              </Button>
+            <Link href="/about" className="text-xl font-bold hover:text-blue-400 transition-colors mr-10">
+              About Us
+            </Link>
+            <Link href="/login" className="text-xl font-bold hover:text-blue-400 transition-colors underline">
+              Login
             </Link>
           </div>
         </div>
