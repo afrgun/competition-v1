@@ -15,7 +15,7 @@ export const CountdownDisplay: React.FC<CountdownDisplayProps> = ({
     return (
       <div className={`text-center ${className}`}>
         <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-green-400 animate-pulse">
-          Competition Started! 🎉
+            Think less. Resolve faster.
         </p>
       </div>
     );

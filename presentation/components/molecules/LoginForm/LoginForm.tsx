@@ -93,11 +93,15 @@ export const LoginForm: React.FC = () => {
         password,
       });
 
-      console.log(result)
 
       if (result.success) {
         // Redirect to dashboard
-        router.push("/dashboard");
+      console.log(result)
+        if (result.user.role === 'employee') {
+          router.push("/dashboard");
+        } else {
+          router.push("/dashboard/tickets");
+        }
       } else {
         setGeneralError(result.message || "Login failed");
       }

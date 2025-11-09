@@ -26,7 +26,7 @@ Belum ditentukan (menunggu dari panitia), namun diasumsikan memiliki:
 ## 🧩 Architectural Structure
 
 ### Folder Layers
-src/
+root/
 ├─ domain/              → Entity & interface (pure TypeScript, no dependency)
 ├─ usecases/            → Application logic (interactors)
 ├─ infrastructure/      → API services, repositories, external integrations
