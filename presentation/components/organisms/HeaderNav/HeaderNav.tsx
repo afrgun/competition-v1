@@ -12,7 +12,7 @@ export const HeaderNav: React.FC = () => {
           {/* Logo / Brand */}
           <div className="flex items-center">
             <Link href="/" className="text-xl font-bold hover:text-blue-400 transition-colors">
-              Vibe Coding
+              Fixora
             </Link>
           </div>
 

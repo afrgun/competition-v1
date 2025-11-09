@@ -33,10 +33,7 @@ export const HeroSection: React.FC = () => {
             as="h1"
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white"
           >
-            Vibe Coding Competition
-          </Text>
-          <Text as="p" className="text-lg sm:text-xl !text-gray-400">
-            Get Ready for the Ultimate Coding Challenge
+            Smart Ticketing System
           </Text>
         </div>
 
