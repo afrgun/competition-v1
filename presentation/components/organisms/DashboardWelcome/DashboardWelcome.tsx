@@ -7,7 +7,7 @@ import { DashboardActionButtons } from "@/presentation/components/molecules";
 import { AiSuggestionList } from "@/presentation/components/organisms";
 import { getFixoraSuggestionInteractor } from "@/usecases/ai";
 import { submitSmartTicketInteractor } from "@/usecases/tickets";
-import { AiSuggestionItem } from "@/shared/types";
+import { AiSuggestionResponse } from "@/shared/types";
 import { storage } from "@/shared/utils";
 import { User } from "@/domain/entities";
 
@@ -20,14 +20,14 @@ export const DashboardWelcome: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<AiSuggestionItem[]>([]);
+  const [suggestion, setSuggestion] = useState<AiSuggestionResponse | null>(null);
   const [error, setError] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
 
   const handleConsultFixora = async () => {
     // Reset states
     setError("");
-    setSuggestions([]);
+    setSuggestion(null);
     setSuccessMessage("");
     setIsLoading(true);
     setIsModalOpen(true);
@@ -37,8 +37,8 @@ export const DashboardWelcome: React.FC = () => {
 
     setIsLoading(false);
 
-    if (result.success) {
-      setSuggestions(result.suggestions || []);
+    if (result.success && result.data) {
+      setSuggestion(result.data);
     } else {
       setError(result.message || "Failed to get suggestions");
     }
@@ -80,7 +80,7 @@ export const DashboardWelcome: React.FC = () => {
     setIsModalOpen(false);
     // Reset after modal close animation
     setTimeout(() => {
-      setSuggestions([]);
+      setSuggestion(null);
       setError("");
     }, 300);
   };
@@ -140,7 +140,7 @@ export const DashboardWelcome: React.FC = () => {
         size="xl"
       >
         <AiSuggestionList
-          suggestions={suggestions}
+          suggestion={suggestion}
           isLoading={isLoading}
           error={error}
         />

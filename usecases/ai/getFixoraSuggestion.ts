@@ -1,19 +1,19 @@
 import { AiRepository } from "@/infrastructure/ai/AiRepository";
-import { AiSuggestionItem } from "@/shared/types";
+import { AiSuggestionResponse } from "@/shared/types";
 
 /**
  * Result type for Fixora suggestion interactor
  */
 export interface FixoraSuggestionResult {
   success: boolean;
-  suggestions?: AiSuggestionItem[];
+  data?: AiSuggestionResponse;
   message?: string;
 }
 
 /**
  * Get Fixora AI suggestions based on user query
  * @param query - User input text
- * @returns FixoraSuggestionResult with suggestions or error message
+ * @returns FixoraSuggestionResult with suggestion data or error message
  */
 export const getFixoraSuggestionInteractor = async (
   query: string
@@ -27,21 +27,24 @@ export const getFixoraSuggestionInteractor = async (
       };
     }
 
+    const payload = {
+      query: query,
+    };
+
     // Call repository to get suggestions
-    const suggestions = await AiRepository.getSuggestions({ query });
+    const data = await AiRepository.getSuggestions(payload);
 
     // Check if we got results
-    if (!suggestions || suggestions.length === 0) {
+    if (!data || !data.suggestion) {
       return {
-        success: true,
-        suggestions: [],
+        success: false,
         message: "No suggestions found for your query",
       };
     }
 
     return {
       success: true,
-      suggestions,
+      data,
     };
   } catch (error: any) {
     return {

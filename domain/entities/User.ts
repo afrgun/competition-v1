@@ -10,7 +10,7 @@ export type UserRole = "employee" | "admin";
 export interface User {
   id: string;
   email: string;
-  role: UserRole; // user role for dashboard navigation
+  role: string; // user role for dashboard navigation
   fullName?: string;
   phoneNumber?: string;
   jobRole?: string;
@@ -41,6 +41,6 @@ export interface LoginResponse {
  */
 export interface LoginResult {
   success: boolean;
-  user?: User;
+  user: User;
   message?: string;
 }

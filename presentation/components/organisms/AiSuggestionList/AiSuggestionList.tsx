@@ -1,18 +1,18 @@
-import { AiSuggestionItem } from "@/shared/types";
+import { AiSuggestionResponse } from "@/shared/types";
 import { AiSuggestionCard } from "@/presentation/components/molecules";
 
 interface AiSuggestionListProps {
-  suggestions: AiSuggestionItem[];
+  suggestion: AiSuggestionResponse | null;
   isLoading?: boolean;
   error?: string;
 }
 
 /**
- * AiSuggestionList - Organism component for displaying list of AI suggestions
- * Shows suggestions as step-by-step guide
+ * AiSuggestionList - Organism component for displaying AI suggestion
+ * Shows suggestion from Fixora AI
  */
 export const AiSuggestionList: React.FC<AiSuggestionListProps> = ({
-  suggestions,
+  suggestion,
   isLoading,
   error,
 }) => {
@@ -49,7 +49,7 @@ export const AiSuggestionList: React.FC<AiSuggestionListProps> = ({
   }
 
   // Empty state
-  if (!suggestions || suggestions.length === 0) {
+  if (!suggestion) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <svg
@@ -75,29 +75,19 @@ export const AiSuggestionList: React.FC<AiSuggestionListProps> = ({
     );
   }
 
-  // Success state - show step-by-step suggestions
+  // Success state - show AI suggestion
   return (
-    <div className="space-y-6">
-      <div className="mb-6">
+    <div className="space-y-4">
+      <div className="mb-4">
         <h3 className="text-lg font-semibold text-white mb-2">
-          Recommended Steps
+          AI Analysis & Recommendation
         </h3>
         <p className="text-gray-400 text-sm">
-          Follow these {suggestions.length} step{suggestions.length > 1 ? "s" : ""}{" "}
-          to resolve your issue
+          Here's what Fixora AI suggests for your query
         </p>
       </div>
 
-      {/* Step by step list */}
-      <div className="space-y-6">
-        {suggestions.map((suggestion, index) => (
-          <AiSuggestionCard
-            key={suggestion.entry_id}
-            suggestion={suggestion}
-            stepNumber={index + 1}
-          />
-        ))}
-      </div>
+      <AiSuggestionCard suggestion={suggestion} />
     </div>
   );
 };

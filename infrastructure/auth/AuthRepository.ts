@@ -31,7 +31,7 @@ interface UserApiResponse {
   data: {
     id: string;
     email: string;
-    role?: "employee" | "admin"; // Optional - will use DEV_DEFAULT_ROLE in dev mode
+    role?: string; // Optional - will use DEV_DEFAULT_ROLE in dev mode
   };
   success: boolean;
 }
@@ -71,10 +71,10 @@ const mapLoginResponse = (data: LoginApiResponse["data"]): LoginResponse => ({
 const mapUserResponse = (
   data: UserApiResponse["data"],
   accessToken: string
-): User => ({
+): any => ({
   id: data.id,
   email: data.email,
-  role: DEV_MODE ? DEV_DEFAULT_ROLE : (data.role || DEV_DEFAULT_ROLE), // Use dev role if in dev mode or if API doesn't return role
+  role: data.role, // Use dev role if in dev mode or if API doesn't return role
   accessToken: accessToken,
 });
 
@@ -113,7 +113,7 @@ export class AuthRepository {
       const data = await response.json();
       console.log(data)
 
-      if (!data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || `Login failed: ${response.statusText}`
@@ -152,13 +152,13 @@ export class AuthRepository {
 
       const data = await response.json();
 
-      if (!data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || "Failed to get user data"
         );
       }
-
+      console.log(data.data)
       return mapUserResponse(data.data, accessToken);
     } catch (error) {
       if (error instanceof Error) {

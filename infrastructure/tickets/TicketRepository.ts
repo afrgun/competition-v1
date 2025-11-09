@@ -18,7 +18,7 @@ interface ApiErrorResponse {
     message: string;
     details: any;
   };
-  success: false;
+  status: boolean;
 }
 export interface ITicketRepository {
   getTickets(): Promise<Ticket[]>
@@ -29,7 +29,7 @@ export class TicketRepository implements ITicketRepository {
   private readonly baseUrl: string
 
   constructor() {
-    this.baseUrl = 'https://private-anon-9d923a4b14-vibecoding.apiary-mock.com/v1'
+    this.baseUrl = 'https://1ef8507dad86.ngrok-free.app/v1'
   }
 
   private getMockTickets(): any[] {
@@ -81,7 +81,7 @@ export class TicketRepository implements ITicketRepository {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-      const response = await fetch(`${this.baseUrl}/tickets`, {
+      const response = await fetch(`${API_BASE_URL}/v1/tickets`, {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export class TicketRepository implements ITicketRepository {
 
   async getTicketById(id: string): Promise<Ticket> {
     try {
-      const response = await fetch(`${this.baseUrl}/tickets/${id}`)
+      const response = await fetch(`${API_BASE_URL}/v1/tickets/${id}`)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -162,6 +162,7 @@ export class TicketRepository implements ITicketRepository {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
         body: JSON.stringify({
           description: payload.description,
@@ -172,7 +173,7 @@ export class TicketRepository implements ITicketRepository {
       const data: SubmitSmartTicketResponse | ApiErrorResponse =
         await response.json();
 
-      if (!data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || "Failed to submit smart ticket"
@@ -203,6 +204,7 @@ export class TicketRepository implements ITicketRepository {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
         body: JSON.stringify({
           body: payload.body,
@@ -212,7 +214,7 @@ export class TicketRepository implements ITicketRepository {
       const data: SubmitCommentResponse | ApiErrorResponse =
         await response.json();
 
-      if (!data.success) {
+      if (!data.status) {
         const errorData = data as ApiErrorResponse;
         throw new Error(
           errorData.error?.message || "Failed to submit comment"
@@ -239,6 +241,7 @@ export class TicketRepository implements ITicketRepository {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
       });
 

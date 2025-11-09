@@ -27,12 +27,12 @@ export interface SubmitCommentPayload {
 }
 
 export interface SubmitCommentResponse {
-  success: boolean;
+  status: boolean;
   data?: any;
 }
 
 export interface SubmitSmartTicketResponse {
-  success: boolean;
+  status: boolean;
   data?: any;
 }
 

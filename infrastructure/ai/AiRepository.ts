@@ -1,7 +1,6 @@
 import {
   AiSuggestionRequest,
   AiSuggestionResponse,
-  AiSuggestionItem,
 } from "@/shared/types";
 
 /**
@@ -18,7 +17,7 @@ interface ApiErrorResponse {
     message: string;
     details: any;
   };
-  success: false;
+  status: boolean;
 }
 
 /**
@@ -28,35 +27,31 @@ export class AiRepository {
   /**
    * Get AI suggestions based on user query
    * @param request - query text from user
-   * @returns List of AI suggestion candidates
+   * @returns AI suggestion response object
    */
   static async getSuggestions(
     request: AiSuggestionRequest
-  ): Promise<AiSuggestionItem[]> {
+  ): Promise<AiSuggestionResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/ai/suggest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // Skip ngrok browser warning
         },
         body: JSON.stringify({
           query: request.query,
+          description: request.query
         }),
       });
 
-      const data: AiSuggestionResponse | ApiErrorResponse =
-        await response.json();
-
-      if (!data.success) {
-        const errorData = data as ApiErrorResponse;
-        throw new Error(
-          errorData.error?.message ||
-            "Failed to get AI suggestions"
-        );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const successData = data as AiSuggestionResponse;
-      return successData.data.candidates || [];
+      const data = await response.json() as AiSuggestionResponse;
+
+      return data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;

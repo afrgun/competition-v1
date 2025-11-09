@@ -15,7 +15,7 @@ import { storage } from "@/shared/utils";
 
 export const loginUserInteractor = async (
   credentials: AuthCredentials
-): Promise<LoginResult> => {
+): Promise<any> => {
   try {
     // Step 1: Call login API to get access token
     const loginResponse = await AuthRepository.login(credentials);
