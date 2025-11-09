@@ -93,7 +93,7 @@ export class TicketRepository implements ITicketRepository {
 
       if (!response.ok) {
         console.warn(`API responded with status: ${response.status}, falling back to mock data`)
-        return this.getMockTickets()
+        return [];
       }
 
       const data = await response.json().catch(() => null)
@@ -116,7 +116,7 @@ export class TicketRepository implements ITicketRepository {
     } catch (error) {
       console.warn('API fetch failed, using mock data:', error)
       // Return mock data instead of throwing error
-      return this.getMockTickets()
+      return [];
     }
   }
 
