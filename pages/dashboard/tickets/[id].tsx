@@ -1,7 +1,6 @@
-"use client";
-
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { DashboardLayout } from "@/presentation/layouts";
 import { submitCommentInteractor, getCommentsInteractor } from "@/usecases/tickets";
 import { Comment } from "@/shared/types";
 
@@ -10,9 +9,9 @@ import { Comment } from "@/shared/types";
  * Will display detailed information about a specific ticket
  */
 export default function TicketDetailPage() {
-  const params = useParams();
   const router = useRouter();
-  const ticketId = params.id as string;
+  const { id } = router.query;
+  const ticketId = id as string;
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
@@ -104,13 +103,16 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
+      <DashboardLayout>
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
+      </DashboardLayout>
     );
   }
 
   return (
+    <DashboardLayout>
     <div className="text-white space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -314,5 +316,6 @@ export default function TicketDetailPage() {
         </p>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Vibe Coding Competition** project built with Next.js (App Router), TypeScript, and Tailwind CSS. The architecture follows **Clean Architecture** (Uncle Bob) adapted for frontend development, with **Atomic Design** principles for component structure.
+This is a **Vibe Coding Competition** project built with Next.js (Page Router), TypeScript, and Tailwind CSS. The architecture follows **Clean Architecture** (Uncle Bob) adapted for frontend development, with **Atomic Design** principles for component structure.
 
 The project uses a **Speckit Workflow** methodology where each feature is documented in a single markdown file (`speckit.[feature-name].md`) containing Specify, Plan, Tasks, and Implement sections.
 
@@ -24,7 +24,22 @@ The codebase follows strict unidirectional dependency flow:
 ### Folder Structure
 
 ```
-src/
+competition-v1/
+├─ pages/               # Next.js Page Router
+│  ├─ _app.tsx          # App wrapper with global styles
+│  ├─ _document.tsx     # HTML document structure
+│  ├─ index.tsx         # Home page
+│  ├─ about.tsx         # About page
+│  ├─ login.tsx         # Login page
+│  ├─ register.tsx      # Register page
+│  └─ dashboard/        # Dashboard routes
+│     ├─ index.tsx      # Dashboard home
+│     ├─ tickets.tsx    # All tickets
+│     ├─ tickets/[id].tsx  # Ticket detail
+│     ├─ my-ticket.tsx  # My tickets
+│     └─ my-ticket/[id].tsx  # My ticket detail
+├─ app/                 # Global styles only
+│  └─ globals.css       # Global CSS
 ├─ domain/              # Pure entities & interfaces (no dependencies)
 ├─ usecases/            # Application logic (interactors)
 ├─ infrastructure/      # API services, repositories, external integrations
@@ -33,10 +48,7 @@ src/
 │  │  ├─ atoms/         # Button, Input, Text, Loader
 │  │  ├─ molecules/     # FormField, Card, NavItem
 │  │  └─ organisms/     # LoginForm, DashboardGrid, HeroSection
-│  └─ layouts/          # AuthLayout, MainLayout
-├─ app/                 # Next.js App Router (page.tsx, layout.tsx)
-│  ├─ (auth)/           # Auth routes (login, register)
-│  └─ (dashboard)/      # Private routes
+│  └─ layouts/          # AuthLayout, MainLayout, DashboardLayout
 └─ shared/              # Utils, constants, config, types
 ```
 

@@ -1,20 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { Sidebar } from "@/presentation/components/organisms";
-import { User, UserRole } from "@/domain/entities";
+import { User } from "@/domain/entities";
 import { storage } from "@/shared/utils";
 
 /**
  * DashboardLayout - Layout for all dashboard pages
  * Includes sidebar navigation based on user role
  */
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

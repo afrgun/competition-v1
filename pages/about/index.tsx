@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   HeaderNav,
   AboutHero,
@@ -37,12 +38,12 @@ export default function AboutPage() {
           <p className="text-lg mb-8 text-blue-100">
             Bergabunglah dengan Fixora dan rasakan perbedaan IT ticketing berbasis AI
           </p>
-          <a
+          <Link
             href="/register"
             className="inline-block bg-white text-blue-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors duration-300 shadow-lg"
           >
             Mulai Sekarang
-          </a>
+          </Link>
         </div>
       </section>
     </main>

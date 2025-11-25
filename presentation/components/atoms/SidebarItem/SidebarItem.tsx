@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
 interface SidebarItemProps {
   label: string;
@@ -18,7 +18,8 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   href,
   icon: Icon,
 }) => {
-  const pathname = usePathname();
+  const router = useRouter();
+  const pathname = router.pathname;
   const isActive = pathname.startsWith(href);
 
   return (
