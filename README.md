@@ -7,6 +7,7 @@ A modern web application built with Next.js, TypeScript, and Tailwind CSS follow
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
+- [Module Federation (Micro-Frontends)](#module-federation-micro-frontends)
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [Development Workflow](#development-workflow)
@@ -80,6 +81,157 @@ UI Component → UseCase → Repository (Infrastructure) → API
 **Additional:**
 - [@heroicons/react](https://heroicons.com/) - Icon library
 - [react-markdown](https://github.com/remarkjs/react-markdown) - Markdown rendering
+
+**Module Federation:**
+- [@module-federation/nextjs-mf](https://www.npmjs.com/package/@module-federation/nextjs-mf) - Next.js Module Federation plugin
+- Cross-framework integration (Next.js ↔ Angular)
+
+## Module Federation (Micro-Frontends)
+
+This project implements **Module Federation** to integrate an Angular login component as a remote module into the Next.js host application.
+
+### Architecture Overview
+
+```
+Next.js Host (Port 3000)           Angular Remote (Port 4200)
+├── pages/login/index.tsx          ├── Login Component (Web Component)
+├── RemoteAngularLogin.tsx         └── remoteEntry.js (MF container)
+├── RemoteErrorBoundary.tsx
+└── LoginFallback.tsx (Local)
+```
+
+### Key Features
+
+- **Dynamic Loading** - Remote only loads on `/login` page (not globally)
+- **Health Check** - Checks if remote is available before loading (3s timeout)
+- **Automatic Fallback** - Falls back to local component if remote unavailable
+- **Error Boundary** - Catches and handles loading errors gracefully
+- **Isolated Impact** - Other routes unaffected if remote is down
+
+### Component Structure
+
+```
+pages/login/index.tsx
+    ↓
+RemoteErrorBoundary          ← Catches unexpected errors
+    ↓
+RemoteAngularLogin           ← Health check + dynamic loading
+    ├── Success → Angular Web Component
+    └── Fail → LoginFallback (local component)
+```
+
+### Configuration
+
+**Environment Variables (`.env.local`):**
+```env
+# Module Federation
+NEXT_PRIVATE_LOCAL_WEBPACK=true
+
+# Remote Configuration
+NEXT_PUBLIC_REMOTE_LOGIN_URL=http://localhost:4200
+NEXT_PUBLIC_USE_REMOTE_LOGIN=true
+```
+
+**Module Federation Config (`next.config.js`):**
+```javascript
+remotes: {
+  remoteLogin: 'remoteLogin@http://localhost:4200/remoteEntry.js'
+}
+```
+
+### Testing Module Federation
+
+#### Scenario 1: Remote Available ✅
+```bash
+# Terminal 1: Start Angular remote
+cd path/to/angular-remote
+ng serve --port 4200
+
+# Terminal 2: Start Next.js host
+npm run dev
+```
+
+**Expected:**
+- Visit `http://localhost:3000/login`
+- Angular component loads successfully
+- Blue info badge shows remote URL
+- Console logs: `✅ Remote Angular available`
+
+#### Scenario 2: Remote Unavailable ❌
+```bash
+# Start Next.js only (Angular NOT running)
+npm run dev
+```
+
+**Expected:**
+- Visit `http://localhost:3000/login`
+- Health check fails after 3s
+- Automatic fallback to local login component
+- Yellow warning badge: "Using Local Login"
+- Console logs: `⚠️ Remote not available, using fallback`
+
+#### Scenario 3: Other Routes Unaffected ✅
+```bash
+# Angular NOT running, only Next.js
+npm run dev
+```
+
+**Expected:**
+- `/` → Works normally ✅
+- `/about` → Works normally ✅
+- `/dashboard` → Works normally ✅
+- **No requests to `localhost:4200`** on these pages
+
+### Force Local Fallback
+
+You can force the local component even when remote is available:
+```
+http://localhost:3000/login?fallback=true
+```
+
+### Implementation Details
+
+**Dynamic Loading Flow:**
+1. User visits `/login`
+2. Health check verifies remote availability (HEAD request, 3s timeout)
+3. If available: Load Angular web component via Module Federation
+4. If unavailable: Show local fallback component
+5. Error Boundary catches any unexpected errors
+
+**Benefits of This Approach:**
+- ✅ Smaller bundle size (remote only loads when needed)
+- ✅ Graceful degradation (app works even if remote is down)
+- ✅ Environment-configurable (change remote URL via env vars)
+- ✅ Isolated failures (remote issues don't crash host)
+- ✅ Production-ready (error handling + monitoring)
+
+### Troubleshooting
+
+**CORS Error:**
+Ensure Angular allows cross-origin requests in `angular.json`:
+```json
+{
+  "serve": {
+    "options": {
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      }
+    }
+  }
+}
+```
+
+**remoteEntry.js 404:**
+```bash
+# Check if remote is running
+curl http://localhost:4200/remoteEntry.js
+# Should return JavaScript code (not 404)
+```
+
+**Component Not Rendering:**
+- Check browser console for errors
+- Verify `window.remoteLogin` exists (in browser console)
+- Check Network tab for successful remote loads
 
 ## Getting Started
 
@@ -286,26 +438,6 @@ ComponentName/
 - API integration calls
 - User interactions and event handlers
 
-**Test Pattern:**
-
-```typescript
-import { render, screen, fireEvent } from '@testing-library/react';
-import { Button } from './Button';
-
-describe('Button', () => {
-  it('renders with correct text', () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByText('Click me')).toBeInTheDocument();
-  });
-
-  it('handles click events', () => {
-    const handleClick = jest.fn();
-    render(<Button onClick={handleClick}>Click</Button>);
-    fireEvent.click(screen.getByText('Click'));
-    expect(handleClick).toHaveBeenCalledTimes(1);
-  });
-});
-```
 
 ### Running Tests
 
