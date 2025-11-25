@@ -1,11 +1,10 @@
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 import { RemoteErrorBoundary } from '@/components/RemoteErrorBoundary';
 import { LoginFallback } from '@/components/LoginFallback';
 
 // Dynamic import to ensure client-side only loading
-const RemoteLogin = dynamic(
-  () => import('../../components/RemoteLoginLoader').then(mod => mod.RemoteLoginLoader),
+const RemoteAngularLogin = dynamic(
+  () => import('@/components/RemoteAngularLogin').then(mod => ({ default: mod.RemoteAngularLogin })),
   {
     ssr: false,
     loading: () => (
@@ -25,9 +24,7 @@ export default function LoginPage() {
       fallback={<LoginFallback />}
       moduleName="Remote Angular Login"
     >
-      <Suspense fallback={<div>Loading...</div>}>
-        <RemoteLogin />
-      </Suspense>
+      <RemoteAngularLogin />
     </RemoteErrorBoundary>
   );
 }
