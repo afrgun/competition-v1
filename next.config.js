@@ -12,7 +12,7 @@ const nextConfig = {
           name: "host",
           filename: "static/chunks/remoteEntry.js",
           remotes: {
-            remoteLogin: 'remoteLogin@http://localhost:4200/remoteEntry.js'
+            remoteLogin: 'remoteLogin@https://competition-v1-remote-ng.netlify.app/remoteEntry.js'
           },
           shared: {
             react: {
